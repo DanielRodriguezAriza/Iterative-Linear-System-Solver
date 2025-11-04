@@ -128,8 +128,9 @@ int main()
     double t = 0.01;
 
     auto x = jacobi(A, b, t);
+    auto y = gauss_seidel(A, b, t);
     
-    std::cout << x << "\n";
+    std::cout << x << "\n" << y << "\n";
 
     return 0;
 }
