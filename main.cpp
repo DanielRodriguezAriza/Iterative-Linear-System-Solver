@@ -84,6 +84,36 @@ Mat<T, M, 1> jacobi(Mat<T, M, N> const &A, Mat<T, M, 1> const &b, T const &t)
     return x_curr;
 }
 
+template<typename T, size_t M, size_t N>
+Mat<T, M, 1> gauss_seidel(Mat<T, M, N> const &A, Mat<T, M, 1> const &b, T const &t)
+{
+    Mat<T, M, 1> x_curr, x_prev;
+	x_curr.zero();
+	x_prev.zero();
+
+    do
+    {
+        x_prev = x_curr;
+        for(std::size_t i = 0; i < N; ++i)
+        {
+            T temp1 = 0;
+            T temp2 = 0;
+            for(std::size_t j = 0; j < i; ++j)
+            {
+                temp1 += A(i, j) * x_curr(j);
+            }
+            for(std::size_t j = i + 1; j < M; ++j)
+            {
+                temp2 += A(i, j) * x_prev(j);
+            }
+            x_curr(i) = (b(i) - temp1 - temp2) / A(i, i);
+        }
+    }
+    while(!exit_condition(x_curr, x_prev, t));
+
+    return x_curr;
+}
+
 int main()
 {
     Mat<double, 4, 4> A = {
