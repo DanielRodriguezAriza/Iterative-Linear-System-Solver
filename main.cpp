@@ -9,14 +9,14 @@
 template<typename T, std::size_t M, std::size_t N>
 struct Mat
 {
-    T c[M * N];
+	T c[M * N];
 
-    inline T const &operator()(std::size_t i, std::size_t j) const { return c[_index(i, j)]; }
-    inline T const &operator()(std::size_t i) const { return c[_index(i, 0)]; }
-    inline T &operator()(std::size_t i, std::size_t j) { return c[_index(i, j)]; }
-    inline T &operator()(std::size_t i) { return c[_index(i, 0)]; }
+	inline T const &operator()(std::size_t i, std::size_t j) const { return c[_index(i, j)]; }
+	inline T const &operator()(std::size_t i) const { return c[_index(i, 0)]; }
+	inline T &operator()(std::size_t i, std::size_t j) { return c[_index(i, j)]; }
+	inline T &operator()(std::size_t i) { return c[_index(i, 0)]; }
 
-    inline std::size_t _index(std::size_t i, std::size_t j) const { return i * N + j; }
+	inline std::size_t _index(std::size_t i, std::size_t j) const { return i * N + j; }
 	
 	inline void zero()
 	{
@@ -30,107 +30,107 @@ struct Mat
 template<typename T, std::size_t M, std::size_t N>
 std::ostream &operator<<(std::ostream &os, Mat<T, M, N> const &m)
 {
-    os << "[\n";
-    for(std::size_t i = 0; i < M; ++i)
-    {
-        os << "  ";
-        for(std::size_t j = 0; j < N; ++j)
-        {
-            os << m(i, j) << " ";
-        }
-        os << "\n";
-    }
-    os << "]";
-    return os;
+	os << "[\n";
+	for(std::size_t i = 0; i < M; ++i)
+	{
+		os << "  ";
+		for(std::size_t j = 0; j < N; ++j)
+		{
+			os << m(i, j) << " ";
+		}
+		os << "\n";
+	}
+	os << "]";
+	return os;
 }
 
 template<typename T, size_t M>
 bool exit_condition(Mat<T, M, 1> const &x_curr, Mat<T, M, 1> const &x_prev, T const &t)
 {
-    for(std::size_t i = 0; i < M; ++i)
-    {
-        T ei = std::abs(x_curr(i) - x_prev(i));
-        if(ei > t)
-        {
-            return false;
-        }
-    }
-    return true;
+	for(std::size_t i = 0; i < M; ++i)
+	{
+		T ei = std::abs(x_curr(i) - x_prev(i));
+		if(ei > t)
+		{
+			return false;
+		}
+	}
+	return true;
 }
 
 template<typename T, size_t M, size_t N>
 Mat<T, M, 1> jacobi(Mat<T, M, N> const &A, Mat<T, M, 1> const &b, T const &t)
 {
-    Mat<T, M, 1> x_curr, x_prev;
+	Mat<T, M, 1> x_curr, x_prev;
 	x_curr.zero();
 	x_prev.zero();
 
 	do
-    {
-        x_prev = x_curr;
-        for(std::size_t i = 0; i < N; ++i)
-        {
-            T temp = 0;
-            for(std::size_t j = 0; j < M; ++j)
-            {
-                if(i == j) continue;
-                temp += A(i, j) * x_prev(j);
-            }
-            x_curr(i) = (b(i) - temp) / A(i, i);
-        }
-    }
-    while(!exit_condition(x_curr, x_prev, t));
+	{
+		x_prev = x_curr;
+		for(std::size_t i = 0; i < N; ++i)
+		{
+			T temp = 0;
+			for(std::size_t j = 0; j < M; ++j)
+			{
+				if(i == j) continue;
+				temp += A(i, j) * x_prev(j);
+			}
+			x_curr(i) = (b(i) - temp) / A(i, i);
+		}
+	}
+	while(!exit_condition(x_curr, x_prev, t));
 	
-    return x_curr;
+	return x_curr;
 }
 
 template<typename T, size_t M, size_t N>
 Mat<T, M, 1> gauss_seidel(Mat<T, M, N> const &A, Mat<T, M, 1> const &b, T const &t)
 {
-    Mat<T, M, 1> x_curr, x_prev;
+	Mat<T, M, 1> x_curr, x_prev;
 	x_curr.zero();
 	x_prev.zero();
 
-    do
-    {
-        x_prev = x_curr;
-        for(std::size_t i = 0; i < N; ++i)
-        {
-            T temp1 = 0;
-            T temp2 = 0;
-            for(std::size_t j = 0; j < i; ++j)
-            {
-                temp1 += A(i, j) * x_curr(j);
-            }
-            for(std::size_t j = i + 1; j < M; ++j)
-            {
-                temp2 += A(i, j) * x_prev(j);
-            }
-            x_curr(i) = (b(i) - temp1 - temp2) / A(i, i);
-        }
-    }
-    while(!exit_condition(x_curr, x_prev, t));
+	do
+	{
+		x_prev = x_curr;
+		for(std::size_t i = 0; i < N; ++i)
+		{
+			T temp1 = 0;
+			T temp2 = 0;
+			for(std::size_t j = 0; j < i; ++j)
+			{
+				temp1 += A(i, j) * x_curr(j);
+			}
+			for(std::size_t j = i + 1; j < M; ++j)
+			{
+				temp2 += A(i, j) * x_prev(j);
+			}
+			x_curr(i) = (b(i) - temp1 - temp2) / A(i, i);
+		}
+	}
+	while(!exit_condition(x_curr, x_prev, t));
 
-    return x_curr;
+	return x_curr;
 }
 
 int main()
 {
-    Mat<double, 4, 4> A = {
-        5,2,-1,1,
-        1,7,3,-1,
-        -1,4,9,2,
-        1,-1,1,4
-    };
-    
-    Mat<double, 4, 1> b = { 12, 2, 1, 3 };
-    
-    double t = 0.01;
+	Mat<double, 4, 4> A = {
+		5,2,-1,1,
+		1,7,3,-1,
+		-1,4,9,2,
+		1,-1,1,4
+	};
+	
+	Mat<double, 4, 1> b = { 12, 2, 1, 3 };
+	
+	double t = 0.01;
 
-    auto x = jacobi(A, b, t);
-    auto y = gauss_seidel(A, b, t);
-    
-    std::cout << x << "\n" << y << "\n";
+	auto x = jacobi(A, b, t);
+	auto y = gauss_seidel(A, b, t);
+	
+	std::cout << x << "\n" << y << "\n";
 
-    return 0;
+	return 0;
 }
