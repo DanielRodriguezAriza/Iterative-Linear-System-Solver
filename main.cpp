@@ -36,7 +36,7 @@ std::ostream &operator<<(std::ostream &os, Mat<T, M, N> const &m)
         os << "  ";
         for(std::size_t j = 0; j < N; ++j)
         {
-            os << /*"a[" << i << ", " << j << "](" << m._index(i, j) << ")" <<*/ m(i, j) << " ";
+            os << m(i, j) << " ";
         }
         os << "\n";
     }
@@ -65,8 +65,7 @@ Mat<T, M, 1> jacobi(Mat<T, M, N> const &A, Mat<T, M, 1> const &b, T const &t)
 	x_curr.zero();
 	x_prev.zero();
 
-	int numitrs = 0;
-    do
+	do
     {
         x_prev = x_curr;
         for(std::size_t i = 0; i < N; ++i)
@@ -79,10 +78,9 @@ Mat<T, M, 1> jacobi(Mat<T, M, N> const &A, Mat<T, M, 1> const &b, T const &t)
             }
             x_curr(i) = (b(i) - temp) / A(i, i);
         }
-		++numitrs;
     }
     while(!exit_condition(x_curr, x_prev, t));
-	std::cout << "NUM ITRS REQUIRED : " << numitrs << "\n";
+	
     return x_curr;
 }
 
