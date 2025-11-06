@@ -59,7 +59,23 @@ bool exit_condition(Mat<T, M, 1> const &x_curr, Mat<T, M, 1> const &x_prev, T co
 }
 
 template<typename T, size_t M, size_t N>
-Mat<T, M, 1> jacobi(Mat<T, M, N> const &A, Mat<T, M, 1> const &b, T const &t)
+static inline void jacobi_inner_loop(Mat<T, M, N> const &A, Mat<T, M, 1> const &b, Mat<T, M, 1> &x_curr, Mat<T, M, 1> &x_prev)
+{
+	x_prev = x_curr;
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		T temp = 0;
+		for(std::size_t j = 0; j < M; ++j)
+		{
+			if(i == j) continue;
+			temp += A(i, j) * x_prev(j);
+		}
+		x_curr(i) = (b(i) - temp) / A(i, i);
+	}
+}
+
+template<typename T, size_t M, size_t N>
+Mat<T, M, 1> jacobi_by_tolerance(Mat<T, M, N> const &A, Mat<T, M, 1> const &b, T const &t)
 {
 	Mat<T, M, 1> x_curr, x_prev;
 	x_curr.zero();
@@ -67,17 +83,7 @@ Mat<T, M, 1> jacobi(Mat<T, M, N> const &A, Mat<T, M, 1> const &b, T const &t)
 
 	do
 	{
-		x_prev = x_curr;
-		for(std::size_t i = 0; i < N; ++i)
-		{
-			T temp = 0;
-			for(std::size_t j = 0; j < M; ++j)
-			{
-				if(i == j) continue;
-				temp += A(i, j) * x_prev(j);
-			}
-			x_curr(i) = (b(i) - temp) / A(i, i);
-		}
+		jacobi_inner_loop(A, b, x_curr, x_prev);
 	}
 	while(!exit_condition(x_curr, x_prev, t));
 	
@@ -85,7 +91,42 @@ Mat<T, M, 1> jacobi(Mat<T, M, N> const &A, Mat<T, M, 1> const &b, T const &t)
 }
 
 template<typename T, size_t M, size_t N>
-Mat<T, M, 1> gauss_seidel(Mat<T, M, N> const &A, Mat<T, M, 1> const &b, T const &t)
+Mat<T, M, 1> jacobi_by_iterations(Mat<T, M, N> const &A, Mat<T, M, 1> const &b, size_t const itrs)
+{
+	Mat<T, M, 1> x_curr, x_prev;
+	x_curr.zero();
+	x_prev.zero();
+
+	for(size_t itr = 0; itr < itrs; ++itr);
+	{
+		jacobi_inner_loop(A, b, x_curr, x_prev);
+	}
+	
+	return x_curr;
+}
+
+template<typename T, size_t M, size_t N>
+static inline void gauss_seidel(Mat<T, M, N> const &A, Mat<T, M, 1> const &b, Mat<T, M, 1> &x_curr, Mat<T, M, 1> &x_prev)
+{
+	x_prev = x_curr;
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		T temp1 = 0;
+		T temp2 = 0;
+		for(std::size_t j = 0; j < i; ++j)
+		{
+			temp1 += A(i, j) * x_curr(j);
+		}
+		for(std::size_t j = i + 1; j < M; ++j)
+		{
+			temp2 += A(i, j) * x_prev(j);
+		}
+		x_curr(i) = (b(i) - temp1 - temp2) / A(i, i);
+	}
+}
+
+template<typename T, size_t M, size_t N>
+Mat<T, M, 1> gauss_seidel_by_tolerance(Mat<T, M, N> const &A, Mat<T, M, 1> const &b, T const &t)
 {
 	Mat<T, M, 1> x_curr, x_prev;
 	x_curr.zero();
@@ -93,23 +134,24 @@ Mat<T, M, 1> gauss_seidel(Mat<T, M, N> const &A, Mat<T, M, 1> const &b, T const 
 
 	do
 	{
-		x_prev = x_curr;
-		for(std::size_t i = 0; i < N; ++i)
-		{
-			T temp1 = 0;
-			T temp2 = 0;
-			for(std::size_t j = 0; j < i; ++j)
-			{
-				temp1 += A(i, j) * x_curr(j);
-			}
-			for(std::size_t j = i + 1; j < M; ++j)
-			{
-				temp2 += A(i, j) * x_prev(j);
-			}
-			x_curr(i) = (b(i) - temp1 - temp2) / A(i, i);
-		}
+		gauss_seidel_inner_loop(A, b, x_curr, x_prev);
 	}
 	while(!exit_condition(x_curr, x_prev, t));
+
+	return x_curr;
+}
+
+template<typename T, size_t M, size_t N>
+Mat<T, M, 1> gauss_seidel_by_iterations(Mat<T, M, N> const &A, Mat<T, M, 1> const &b, size_t const itrs)
+{
+	Mat<T, M, 1> x_curr, x_prev;
+	x_curr.zero();
+	x_prev.zero();
+
+	for(size_t itr = 0; itr < itrs; ++itr)
+	{
+		gauss_seidel_inner_loop(A, b, x_curr, x_prev);
+	}
 
 	return x_curr;
 }
@@ -127,8 +169,8 @@ int main()
 	
 	double t = 0.01;
 
-	auto x = jacobi(A, b, t);
-	auto y = gauss_seidel(A, b, t);
+	auto x = jacobi_by_tolerance(A, b, t);
+	auto y = gauss_seidel_by_tolerance(A, b, t);
 	
 	std::cout << x << "\n" << y << "\n";
 
