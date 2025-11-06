@@ -106,7 +106,7 @@ Mat<T, M, 1> jacobi_by_iterations(Mat<T, M, N> const &A, Mat<T, M, 1> const &b, 
 }
 
 template<typename T, size_t M, size_t N>
-static inline void gauss_seidel(Mat<T, M, N> const &A, Mat<T, M, 1> const &b, Mat<T, M, 1> &x_curr, Mat<T, M, 1> &x_prev)
+static inline void gauss_seidel_inner_loop(Mat<T, M, N> const &A, Mat<T, M, 1> const &b, Mat<T, M, 1> &x_curr, Mat<T, M, 1> &x_prev)
 {
 	x_prev = x_curr;
 	for(std::size_t i = 0; i < N; ++i)
