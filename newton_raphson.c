@@ -31,7 +31,7 @@ double nr(double (*f)(double), double (*d)(double), double x0, double epsilon)
         ei = fabs(xn - xp);
         xp = xn;
         
-        printf("k = %d; xn = %lf;\n", itr, xn);
+        printf("k = %d; x = %lf; e = %lf;\n", itr, xn, ei);
         ++itr;
     }
     while(ei > epsilon);
