@@ -18,6 +18,12 @@ static inline T lerp(T const &a, T const &b, U t)
 	return t * a + ((U)(1.0) - t) * b;
 }
 
+template<typename T, typename U = double>
+static inline T bilinear_interpolation(T const &a1, T const &a2, T const &a3, T const &a4, U t1, U t2)
+{
+	return lerp(lerp(a2, a1, t2), lerp(a4, a3, t2), t1);
+}
+
 }
 
 #endif
