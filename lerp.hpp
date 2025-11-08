@@ -12,6 +12,11 @@ static inline T clamp(T const &v, T const &min, T const &max)
 	return v;
 }
 
+template<typename T, typename U = double>
+static inline T lerp(T const &a, T const &b, U t)
+{
+	return t * a + ((U)(1.0) - t) * b;
+}
 
 }
 
